@@ -21,7 +21,7 @@ namespace CustomMOTDText
 
 	    void Init()
 	    {
-		    string filePath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, fileName);
+		    string filePath = Path.Combine(Paths.GameRootPath, fileName);
 		    try
 		    {
 			    if (!File.Exists(filePath))
@@ -42,7 +42,8 @@ namespace CustomMOTDText
 	    {
 		    GameObject motd;
 		    TextMeshPro tmp = null;
-		    while (tmp == null)
+                    int tries = 0;
+		    while (tmp == null && tries < 10)
 		    {
 			    motd = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom/motdtext");
 			    if (motd != null)
@@ -50,8 +51,12 @@ namespace CustomMOTDText
 				    tmp = motd.GetComponent<TextMeshPro>();
 			    }
 			    yield return null;
+			    tries++;
 		    }
-		    tmp.text = customText;
+		    if (tmp != null)
+		    	tmp.text = customText;
+		    else
+			Logger.LogError($"[CustomMOTDText] Failed to find the MOTD Text.");
 	    }
     }
 }
