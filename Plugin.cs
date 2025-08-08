@@ -12,45 +12,41 @@ namespace CustomMOTDText
 		private string customText;
 		private const string fileName = "custommotdtext.txt";
 		private const string discordHandle = "@HanSolo1000Falcon";
-	    
-	    void Start()
+		private TextMeshPro tmp;
+		
+	    private void Start()
 	    {
 		    HarmonyPatches.ApplyHarmonyPatches();
-		    GorillaTagger.OnPlayerSpawned(Init);
+		    GorillaTagger.OnPlayerSpawned(OnGameInitialized);
 	    }
 
-	    void Init()
+	    private void OnGameInitialized()
 	    {
 		    string filePath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, fileName);
+		    
 		    try
 		    {
 			    if (!File.Exists(filePath))
-			    {
 				    File.WriteAllText(filePath, $"IF YOU'RE READING THIS IT MEANS YOU HAVE NOT YET ASSIGNED A CUSTOM MOTD TEXT. COULD YOU PLEASE DO THAT IN THE FILE CALLED '{fileName}' IN THE GAME FOLDER? FULL FILE PATH: {filePath}");
-			    }
+			    
 			    customText = File.ReadAllText(filePath);
 		    }
 		    catch (IOException ex)
 		    {
-			    Logger.LogError($"[CustomMOTDText] Failed to access MOTD file: {ex}");
+			    Debug.LogError($"[CustomMOTDText] Failed to access MOTD file: {ex}");
 			    customText = $"ERROR LOADING CUSTOM MESSAGE OF THE DAY TEXT, IF THIS PROBLEM PERSISTS AFTER RESTARTS PLEASE CONTACT ME IN THE GORILLA TAG MODDING GROUP DISCORD SERVER {discordHandle}";
 		    }
-		    StartCoroutine(AssignText());
+
+		    StartCoroutine(UpdateText());
 	    }
 
-	    IEnumerator AssignText()
+	    private IEnumerator UpdateText()
 	    {
-		    GameObject motd;
-		    TextMeshPro tmp = null;
-		    while (tmp == null)
-		    {
-			    motd = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom/motdtext");
-			    if (motd != null)
-			    {
-				    tmp = motd.GetComponent<TextMeshPro>();
-			    }
+		    while (GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom/motdBodyText") == null)
 			    yield return null;
-		    }
+
+		    tmp = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom/motdBodyText").GetComponent<TextMeshPro>();
+		    yield return new WaitForSeconds(5f);
 		    tmp.text = customText;
 	    }
     }
